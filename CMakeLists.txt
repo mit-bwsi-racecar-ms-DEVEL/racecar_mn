@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(racecar_mn)
 
 find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
+  ackermann_msgs
   rospy
   sensor_msgs
   std_msgs

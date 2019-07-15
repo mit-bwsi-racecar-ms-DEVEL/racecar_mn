@@ -4,7 +4,7 @@
 
 import rospy
 import maestro
-from geometry_msgs.msg import Twist
+from ackermann_msgs.msg import AckermannDriveStamped
 import time
 
 # simple function to do a linear mapping
@@ -14,14 +14,15 @@ def map_val(value, inMin, inMax, outMin, outMax):
     valScaled = float(value - inMin) / float(inSpan)
     return outMin + (valScaled * outSpan)
 
-# pass this Twist msg.linear.x for speed and msg.angular.z for turn
-# x [-1.5, 1.5] -> | -1.5 full reverse | 1.5 full forward |
-# z [-0.4, 0.4] -> | -0.4 full left    | 0.4 full right   |
+# msg.drive.speed:
+# [-1.5, 1.5] -> | -1.5 full reverse | 1.5 full forward |
+# msg.drive.steering_angle:
+# [-0.4, 0.4] -> | -0.4 full left    | 0.4 full right   |
 def drive_callback(msg):
     global controller
-    lin_vel = map_val(msg.linear.x,-1.5,1.5,3000,9000)
+    lin_vel = map_val(msg.drive.speed,-1.5,1.5,3000,9000)
 
-    turn_angle = map_val(msg.angular.z,-0.4,0.4,8500,3500) 
+    turn_angle = map_val(msg.drive.steering_angle,-0.4,0.4,8500,3500) 
     controller.setTarget(0,int(lin_vel))
 
     # added 250 to center servo
@@ -29,7 +30,7 @@ def drive_callback(msg):
 
 # init ros
 rospy.init_node('pwm')
-rospy.Subscriber("/drive", Twist, drive_callback)
+rospy.Subscriber("/drive", AckermannDriveStamped, drive_callback)
 
 # default config
 controller = maestro.Controller()
