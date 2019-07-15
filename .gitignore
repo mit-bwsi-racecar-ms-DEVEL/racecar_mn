@@ -1,0 +1,10 @@
+*.sw*
+*.pyc
+autograder/build/*
+autograder/dist/*
+autograder/submission
+*.spec
+*.npz
+*.json
+*.zip
+run_tests

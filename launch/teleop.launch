@@ -1,0 +1,12 @@
+<launch>
+  <!-- Launch the wall follower with parameters -->
+  <node pkg="joy" type="joy_node" name="joy_node" />
+  <node pkg="racecar_mn" name="gamepad" type="gamepad.py" output="screen">
+      <rosparam command="load" file="$(find racecar_mn)/config/params.yaml" />
+  </node>
+  <node pkg="racecar_mn" name="pwm" type="pwm.py" output="screen" />
+  <node pkg="racecar_mn" name="simple_camera" type="simple_camera.py" output="screen" />
+
+  <!-- Uncomment to enable lidar by default -->
+  <!-- <include file="$(find ydlidar)/launch/lidar.launch" /> -->
+</launch>
