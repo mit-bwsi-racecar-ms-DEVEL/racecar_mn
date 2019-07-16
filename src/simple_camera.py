@@ -30,7 +30,7 @@ while not rospy.is_shutdown():
     msg = Image()
     msg.height = frame.shape[0]
     msg.width = frame.shape[1]
-    msg.encoding = "bgr8"
+    msg.encoding = 'bgr8'
     msg.is_bigendian = 0
     msg.step = 3 * msg.width
     msg.data = frame.flatten().tostring()

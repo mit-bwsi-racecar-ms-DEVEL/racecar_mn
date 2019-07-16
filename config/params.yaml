@@ -1,2 +1,4 @@
-x_vel_scale: 0.25
-y_turn_scale: 0.5
+gamepad_x_scale: 0.25
+gamepad_y_scale: 0.4
+throttle_vel_max: .25
+steering_y_offset: 0
