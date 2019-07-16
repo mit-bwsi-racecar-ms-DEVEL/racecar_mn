@@ -7,13 +7,25 @@ from sensor_msgs.msg import Joy
 from ackermann_msgs.msg import AckermannDriveStamped
 
 # get param file values
-VEL_MAX = rospy.get_param('throttle_vel_max')
+CAR_THROTTLE_FORWARD = rospy.get_param('car_throttle_forward')
+CAR_THROTTLE_BACKWARD = rospy.get_param('car_throttle_backward')
+CAR_THROTTLE_TURN = rospy.get_param('car_throttle_turn')
 
-# callback that throttles max speed
+# callback that throttles max speed and angle
 def drive_callback(msg):
     global motor_pub
-    if msg.drive.speed > VEL_MAX:
-        msg.drive.speed = VEL_MAX
+    if msg.drive.speed > CAR_THROTTLE_FORWARD:
+        msg.drive.speed = CAR_THROTTLE_FORWARD
+
+    if msg.drive.speed < -CAR_THROTTLE_BACKWARD:
+        msg.drive.speed = -CAR_THROTTLE_BACKWARD
+
+    if msg.drive.steering_angle > CAR_THROTTLE_TURN:
+        msg.drive.steering_angle = CAR_THROTTLE_TURN
+
+    if msg.drive.steering_angle < -CAR_THROTTLE_TURN:
+        msg.drive.steering_angle = -CAR_THROTTLE_TURN 
+
     motor_pub.publish(msg)
 
 # init ROS

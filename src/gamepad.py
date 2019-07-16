@@ -7,16 +7,21 @@ from sensor_msgs.msg import Joy
 from ackermann_msgs.msg import AckermannDriveStamped
 
 # get param file values
-X_SCALE = rospy.get_param('gamepad_x_scale')
-Y_SCALE = rospy.get_param('gamepad_y_scale')
+CAR_THROTTLE_FORWARD = rospy.get_param('car_throttle_forward')
+CAR_THROTTLE_BACKWARD = rospy.get_param('car_throttle_backward')
+CAR_THROTTLE_TURN = rospy.get_param('car_throttle_turn')
+GAMEPAD_THROTTLE_SPEED_SCALE = rospy.get_param('gamepad_throttle_speed_scale')
 
-# scale x-stick input [-1, 1] to drive speed output
+# scale x-stick input [-1, 1] to throttled drive speed output
 def scale_x(x_in):
-    return x_in * X_SCALE
+    if x_in >= 0:
+        return x_in * CAR_THROTTLE_FORWARD * GAMEPAD_THROTTLE_SPEED_SCALE
+    else:
+        return x_in * CAR_THROTTLE_BACKWARD * GAMEPAD_THROTTLE_SPEED_SCALE
 
-# scale y-stick input [-1, 1] to drive angle output
+# scale y-stick input [-1, 1] to throttled drive angle output
 def scale_y(y_in):
-    return y_in * Y_SCALE
+    return y_in * CAR_THROTTLE_TURN
 
 # gamepad callback
 def joy_callback(msg):
