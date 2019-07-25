@@ -2,6 +2,7 @@
   <!-- Launch the wall follower with parameters -->
   <rosparam command="load" file="$(find racecar_mn)/config/params.yaml" />
   <node pkg="joy" type="joy_node" name="joy_node" />
+  <node pkg="racecar_mn" name="mux" type="mux.py" output="screen" />
   <node pkg="racecar_mn" name="gamepad" type="gamepad.py" output="screen" />
   <node pkg="racecar_mn" name="pwm" type="pwm.py" output="screen" />
   <node pkg="racecar_mn" name="throttle" type="throttle.py" output="screen" />
