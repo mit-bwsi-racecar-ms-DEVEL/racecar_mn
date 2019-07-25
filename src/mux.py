@@ -22,7 +22,7 @@ def joy_callback(msg):
         mux_mode = 'gamepad'
     # if RB is pressed, enable autonomy
     elif msg.buttons[5] == 1:
-        mux_mode = 'autonomy':
+        mux_mode = 'autonomy'
     # otherwise default, publish stop
     else:
         mux_mode = ''
