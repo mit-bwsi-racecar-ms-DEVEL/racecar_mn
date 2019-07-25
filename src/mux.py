@@ -23,9 +23,11 @@ def joy_callback(msg):
     # if RB is pressed, enable autonomy
     elif msg.buttons[5] == 1:
         mux_mode = 'autonomy':
-    # otherwise default
+    # otherwise default, publish stop
     else:
         mux_mode = ''
+        mux_out_pub.publish(AckermannDriveStamped())
+
 
 # callback for gamepad_drive topic
 def gamepad_drive_callback(msg):
