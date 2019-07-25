@@ -1,6 +1,6 @@
-car_throttle_forward: 0.3    # m/s
-car_throttle_backward: 0.3   # m/s
-car_throttle_turn: 0.4       # radians
+car_throttle_forward: 0.25   # m/s
+car_throttle_backward: 0.25  # m/s
+car_throttle_turn: 0.25      # radians
 
 car_max_forward: 1.5         # m/s
 car_max_backward: 1.0        # m/s
