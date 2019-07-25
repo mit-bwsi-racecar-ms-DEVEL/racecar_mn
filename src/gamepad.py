@@ -11,6 +11,8 @@ CAR_THROTTLE_FORWARD = rospy.get_param('car_throttle_forward')
 CAR_THROTTLE_BACKWARD = rospy.get_param('car_throttle_backward')
 CAR_THROTTLE_TURN = rospy.get_param('car_throttle_turn')
 GAMEPAD_THROTTLE_SPEED_SCALE = rospy.get_param('gamepad_throttle_speed_scale')
+GAMEPAD_X_AXIS = rospy.get_param('gamepad_x_axis')
+GAMEPAD_Y_AXIS = rospy.get_param('gamepad_y_axis')
 
 # scale x-stick input [-1, 1] to throttled drive speed output
 def scale_x(x_in):
@@ -27,8 +29,8 @@ def scale_y(y_in):
 def joy_callback(msg):
     global drive_pub, X_SCALE, Y_SCALE
     drive_msg = AckermannDriveStamped()
-    drive_msg.drive.speed = scale_x(msg.axes[1])
-    drive_msg.drive.steering_angle = scale_y(msg.axes[3])
+    drive_msg.drive.speed = scale_x(msg.axes[GAMEPAD_X_AXIS])
+    drive_msg.drive.steering_angle = scale_y(msg.axes[GAMEPAD_Y_AXIS])
     drive_pub.publish(drive_msg)
 
 # init ROS
