@@ -31,7 +31,7 @@ def drive_callback(msg):
 # init ROS
 rospy.init_node('throttle')
 motor_pub = rospy.Publisher('/motor', AckermannDriveStamped, queue_size=1)
-rospy.Subscriber('/drive', AckermannDriveStamped, drive_callback)
+rospy.Subscriber('/mux_out', AckermannDriveStamped, drive_callback)
 
 # wait before shutdown
 rospy.spin()

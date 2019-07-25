@@ -27,17 +27,14 @@ def scale_y(y_in):
 def joy_callback(msg):
     global drive_pub, X_SCALE, Y_SCALE
     drive_msg = AckermannDriveStamped()
-
-    # if LB is pressed (enabling teleop mode), send drive messages
-    if msg.buttons[4] == 1:
-        drive_msg.drive.speed = scale_x(msg.axes[1])
-        drive_msg.drive.steering_angle = scale_y(msg.axes[3])
+    drive_msg.drive.speed = scale_x(msg.axes[1])
+    drive_msg.drive.steering_angle = scale_y(msg.axes[3])
     drive_pub.publish(drive_msg)
 
 # init ROS
 rospy.init_node('gamepad')
-drive_pub = rospy.Publisher('/drive', AckermannDriveStamped, queue_size=1)
-joy_sub = rospy.Subscriber('/joy', Joy, joy_callback)
+drive_pub = rospy.Publisher('/gamepad_drive', AckermannDriveStamped, queue_size=1)
+rospy.Subscriber('/joy', Joy, joy_callback)
 
 # wait before shutdown
 rospy.spin()
