@@ -9,6 +9,8 @@
   <maintainer email="fishberg@mit.edu">Andrew Fishberg</maintainer>
   <license>MIT</license>  
 
+  <buildtool_depend> ament_python </buildtool_depend>
+  
   <depend>ackermann_msgs</depend>
   <depend>rclpy</depend>
   <depend>sensor_msgs</depend>

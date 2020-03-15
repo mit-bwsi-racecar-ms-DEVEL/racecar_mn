@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/python3
 
 import launch
 import launch.actions
@@ -6,9 +6,9 @@ import launch.substitutions
 from launch_ros.actions import Node
 
 
-def generate_launch_subscriptions():
+def generate_launch_description():
     param_file_path = '../config/params.yaml'
-    return launch.LaunchDescriptions([
+    return launch.LaunchDescription([
 	Node(
 	    package='joy',
             node_executable='joy_node',
@@ -38,7 +38,7 @@ def generate_launch_subscriptions():
 #            package='racecar_mn',
 #            node_executable='simple_camera.py',
 #            node_name='simple_camera'
-	)    
+#	)    
     ])
 
 

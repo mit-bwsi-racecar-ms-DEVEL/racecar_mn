@@ -10,10 +10,10 @@ setup(
     data_files=[
         ('config', ['config/params.yaml']),
         ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
-        ('share/' + package_name, ['package.xml']),
+        (f'share/{package_name}', ['package.xml']),
+        (f'share/{package_name}', ['launch/teleop.launch.py']),
     ],
     install_requires=['setuptools'],
-
     author='Andrew Fishberg',
     author_email='fishberg@mit.edu',
     maintainer='Andrew Fishberg',
