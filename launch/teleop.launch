@@ -1,3 +1,5 @@
+#!/bin/bash
+
 import launch
 import launch.actions
 import launch.substitutions
