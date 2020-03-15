@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/local/bin/python3
 
 import serial
 from sys import version_info
@@ -52,7 +52,7 @@ class Controller:
         cmdStr = self.PololuCmd + cmd
         if PY2:
             self.usb.write(cmdStr)
-#	    print("sent2py")
+#           print("sent2py")
         else:
             self.usb.write(bytes(cmdStr,'latin-1'))
     # Set channels min and max value range.  Use this as a safety to protect
@@ -93,7 +93,7 @@ class Controller:
         msb = (target >> 7) & 0x7f #shift 7 and take next 7 bits for msb
         cmd = chr(0x04) + chr(chan) + chr(lsb) + chr(msb)
 #        print(cmd)
-	self.sendCmd(cmd)
+        self.sendCmd(cmd)
         # Record Target value
         self.Targets[chan] = target
 #        print(chan, target) 

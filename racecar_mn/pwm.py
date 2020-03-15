@@ -1,16 +1,32 @@
-#!/usr/bin/python
+#!/usr/local/bin/python3
 
 # node abstraction for using maestro.py driver for servo/motor
 
-import rospy
+import rclpy
+
 import maestro
 from ackermann_msgs.msg import AckermannDriveStamped
 import time
 
-CAR_MAX_FORWARD = rospy.get_param('car_max_forward')
-CAR_MAX_BACKWARD = rospy.get_param('car_max_backward')
-CAR_MAX_TURN = rospy.get_param('car_max_turn')
-STEERING_CENTER_REL_OFFSET = rospy.get_param('steering_center_rel_offset')
+# default config
+controller = maestro.Controller()
+
+# setup motor config
+controller.setRange(0,3000,9000)
+controller.setSpeed(0,0)
+controller.setAccel(0,0)
+controller.setTarget(0,6000)
+
+# setup steering config
+controller.setRange(1,3000,9000)
+controller.setSpeed(1,0)
+controller.setAccel(1,0)     
+controller.setTarget(1,6000)
+
+CAR_MAX_FORWARD = rclpy.get_param('car_max_forward')
+CAR_MAX_BACKWARD = rclpy.get_param('car_max_backward')
+CAR_MAX_TURN = rclpy.get_param('car_max_turn')
+STEERING_CENTER_REL_OFFSET = rclpy.get_param('steering_center_rel_offset')
 
 # simple function to do a linear mapping
 def map_val(value, inMin, inMax, outMin, outMax):
@@ -41,24 +57,10 @@ def motor_callback(msg):
     controller.setTarget(1, int(turn_angle + STEERING_CENTER_REL_OFFSET))
 
 # init ros
-rospy.init_node('pwm')
-rospy.Subscriber('/motor', AckermannDriveStamped, motor_callback)
-
-# default config
-controller = maestro.Controller()
-
-# setup motor config
-controller.setRange(0,3000,9000)
-controller.setSpeed(0,0)
-controller.setAccel(0,0)
-controller.setTarget(0,6000)
-
-# setup steering config
-controller.setRange(1,3000,9000)
-controller.setSpeed(1,0)
-controller.setAccel(1,0)     
-controller.setTarget(1,6000)
+rclpy.init()
+node = rclpy.create_node('pwm')
+rclpy.create_subscriber(AckermannDriveStamped, '/motor', motor_callback)
 
 # wait and shutdown
-rospy.spin()
+rclpy.spin(node)
 controller.close()

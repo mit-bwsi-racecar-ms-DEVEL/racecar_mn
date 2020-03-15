@@ -1,15 +1,15 @@
-#!/usr/bin/python
+#!/usr/local/bin/python3
 
 # node for ensuring commanded speed does not exceed throttle
+import rclpy
 
-import rospy
 from sensor_msgs.msg import Joy
 from ackermann_msgs.msg import AckermannDriveStamped
 
 # get param file values
-CAR_THROTTLE_FORWARD = rospy.get_param('car_throttle_forward')
-CAR_THROTTLE_BACKWARD = rospy.get_param('car_throttle_backward')
-CAR_THROTTLE_TURN = rospy.get_param('car_throttle_turn')
+CAR_THROTTLE_FORWARD = rclpy.parameter.Parameter('car_throttle_forward',type_=DOUBLE)
+CAR_THROTTLE_BACKWARD = rclpy.param.Paramter('car_throttle_backward',type_=DOUBLE)
+CAR_THROTTLE_TURN = rclpy.param.Parameter('car_throttle_turn',type_=DOUBLE)
 
 # callback that throttles max speed and angle
 def drive_callback(msg):
@@ -29,9 +29,13 @@ def drive_callback(msg):
     motor_pub.publish(msg)
 
 # init ROS
-rospy.init_node('throttle')
-motor_pub = rospy.Publisher('/motor', AckermannDriveStamped, queue_size=1)
-rospy.Subscriber('/mux_out', AckermannDriveStamped, drive_callback)
+rclpy.init()
+node=rclpy.create_node('throttle')
+
+motor_pub = rclpy.create_publisher(AckermannDriveStamped, '/motor', queue_size=1)
+
+mux_sub = rclpy.create_subscription(AckermannDriveStamped, '/mux_out', drive_callback)
+
 
 # wait before shutdown
-rospy.spin()
+rclpy.spin()

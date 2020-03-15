@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/local/bin/python3
 
 # node for naively and publishing rgb picture from RealSense
 
-import rospy
+import rclpy
 from sensor_msgs.msg import Image
 
 import cv2
@@ -12,13 +12,12 @@ import numpy as np
 cap = cv2.VideoCapture(2)
 
 # init ROS
-rospy.init_node('camera')
-pub_im = rospy.Publisher('/camera',
-                         Image,
-                         queue_size=1)
+rclpy.init()
+rclpy.create_node('camera')
+pub_im = rclpy.create_publisher(Image,'/camera', queue_size=1)
 
 # main body loop
-while not rospy.is_shutdown():
+while not rclpy.is_shutdown():
     # capture frame-by-frame
     _, frame = cap.read()
 
@@ -40,3 +39,6 @@ while not rospy.is_shutdown():
 
 # free resources
 cap.release()
+
+
+#rclpy.spin() # not necessary?

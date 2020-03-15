@@ -1,18 +1,18 @@
-#!/usr/bin/python
+#!/usr/local/bin/python3
 
 # node for turning gamepad inputs into drive commands
 
-import rospy
+import rclpy
 from sensor_msgs.msg import Joy
 from ackermann_msgs.msg import AckermannDriveStamped
 
 # get param file values
-CAR_THROTTLE_FORWARD = rospy.get_param('car_throttle_forward')
-CAR_THROTTLE_BACKWARD = rospy.get_param('car_throttle_backward')
-CAR_THROTTLE_TURN = rospy.get_param('car_throttle_turn')
-GAMEPAD_THROTTLE_SPEED_SCALE = rospy.get_param('gamepad_throttle_speed_scale')
-GAMEPAD_X_AXIS = rospy.get_param('gamepad_x_axis')
-GAMEPAD_Y_AXIS = rospy.get_param('gamepad_y_axis')
+CAR_THROTTLE_FORWARD = rclpy.parameter.Parameter('car_throttle_forward',type_=DOUBLE)
+CAR_THROTTLE_BACKWARD = rclpy.parameter.Parameter('car_throttle_backward',type_=DOUBLE)
+CAR_THROTTLE_TURN = rclpy.parameter.Parameter('car_throttle_turn',type_=DOUBLE)
+GAMEPAD_THROTTLE_SPEED_SCALE = rclpy.parameter.Parameter('gamepad_throttle_speed_scale',type_=DOUBLE)
+GAMEPAD_X_AXIS = rclpy.parameter.Parameter('gamepad_x_axis',type_=DOUBLE)
+GAMEPAD_Y_AXIS = rclpy.parameter.Parameter('gamepad_y_axis',type_=DOUBLE)
 
 # scale x-stick input [-1, 1] to throttled drive speed output
 def scale_x(x_in):
@@ -34,9 +34,10 @@ def joy_callback(msg):
     drive_pub.publish(drive_msg)
 
 # init ROS
-rospy.init_node('gamepad')
-drive_pub = rospy.Publisher('/gamepad_drive', AckermannDriveStamped, queue_size=1)
-rospy.Subscriber('/joy', Joy, joy_callback)
+rclpy.init()
+node = rclpy.create_node('gamepad')
+drive_pub = rclpy.create_publisher(AckermannDriveStamped, '/gamepad_drive', queue_size=1)
+sub = rclpy.create_subscriber(Joy, '/joy', joy_callback)
 
 # wait before shutdown
-rospy.spin()
+rclpy.spin()
