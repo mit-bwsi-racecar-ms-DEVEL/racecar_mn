@@ -7,18 +7,20 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    param_file_path = '../config/params.yaml'
+    param_file_path = '/home/racecar/racecar_ws/base_ws/src/racecar_mn/config/params.yaml'
+    
     return launch.LaunchDescription([
 	Node(
 	    package='joy',
             node_executable='joy_node',
-            node_name='joy_node'
+            node_name='joy_node',
 	),
-#	Node(
-#	    package='racecar_mn',
-#            node_executable='gamepad.py',
-#            node_name='gamepad'
-#	),
+        Node(
+	    package='racecar_mn',
+            node_executable='gamepad',
+            node_name='gamepad_node',
+            parameters=[param_file_path],
+	),
 #	Node(
 #	    package='racecar_mn',
 #            node_executable='mux.py',

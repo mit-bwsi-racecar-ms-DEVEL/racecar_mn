@@ -14,6 +14,12 @@ setup(
         (f'share/{package_name}', ['launch/teleop.launch.py']),
     ],
     install_requires=['setuptools'],
+    entry_points={
+        'console_scripts': [
+            'gamepad = racecar_mn.gamepad:main',
+        ]
+    },
+    
     author='Andrew Fishberg',
     author_email='fishberg@mit.edu',
     maintainer='Andrew Fishberg',

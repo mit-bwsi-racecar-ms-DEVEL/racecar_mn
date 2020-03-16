@@ -2,17 +2,27 @@
 
 # node for turning gamepad inputs into drive commands
 
+import sys
+
 import rclpy
+from rclpy.parameter import Parameter
 from sensor_msgs.msg import Joy
 from ackermann_msgs.msg import AckermannDriveStamped
 
 # get param file values
-CAR_THROTTLE_FORWARD = rclpy.parameter.Parameter('car_throttle_forward',type_=DOUBLE)
-CAR_THROTTLE_BACKWARD = rclpy.parameter.Parameter('car_throttle_backward',type_=DOUBLE)
-CAR_THROTTLE_TURN = rclpy.parameter.Parameter('car_throttle_turn',type_=DOUBLE)
-GAMEPAD_THROTTLE_SPEED_SCALE = rclpy.parameter.Parameter('gamepad_throttle_speed_scale',type_=DOUBLE)
-GAMEPAD_X_AXIS = rclpy.parameter.Parameter('gamepad_x_axis',type_=DOUBLE)
-GAMEPAD_Y_AXIS = rclpy.parameter.Parameter('gamepad_y_axis',type_=DOUBLE)
+CAR_THROTTLE_FORWARD = float(0.25) # Parameter('car_throttle_forward',type_=Parameter.Type.DOUBLE,value=0.25)
+CAR_THROTTLE_BACKWARD = float(0.25) # Parameter('car_throttle_backward',type_=Parameter.Type.DOUBLE,value=0.25)
+CAR_THROTTLE_TURN = 1.0 # float(Parameter('car_throttle_turn',type_=Parameter.Type.DOUBLE,value=0.25).get_parameter_value())
+GAMEPAD_THROTTLE_SPEED_SCALE = 1.0 # float(Parameter('gamepad_throttle_speed_scale',type_=Parameter.Type.DOUBLE,value=1.0).get_parameter_value())
+GAMEPAD_X_AXIS = int(1) # int(Parameter('gamepad_x_axis',type_=Parameter.Type.INTEGER,value=1).get_parameter_value())
+GAMEPAD_Y_AXIS = int(3) # Parameter('gamepad_y_axis',type_=Parameter.Type.INTEGER,value=3).get_parameter_value())
+
+# declare globals
+_node = None
+_pub = None
+_sub = None
+_x_scale = 0
+_y_scale = 0
 
 # scale x-stick input [-1, 1] to throttled drive speed output
 def scale_x(x_in):
@@ -27,17 +37,30 @@ def scale_y(y_in):
 
 # gamepad callback
 def joy_callback(msg):
-    global drive_pub, X_SCALE, Y_SCALE
+    global _pub
     drive_msg = AckermannDriveStamped()
     drive_msg.drive.speed = scale_x(msg.axes[GAMEPAD_X_AXIS])
     drive_msg.drive.steering_angle = scale_y(msg.axes[GAMEPAD_Y_AXIS])
-    drive_pub.publish(drive_msg)
+    _pub.publish(drive_msg)
 
-# init ROS
-rclpy.init()
-node = rclpy.create_node('gamepad')
-drive_pub = rclpy.create_publisher(AckermannDriveStamped, '/gamepad_drive', queue_size=1)
-sub = rclpy.create_subscriber(Joy, '/joy', joy_callback)
 
-# wait before shutdown
-rclpy.spin()
+def main(args=None):
+    global _node, _pub, _sub 
+
+    rclpy.init(args=args)
+    
+    node = rclpy.create_node('gamepad_node')
+    _sub = node.create_subscription(Joy, '/joy', joy_callback, 1)
+    _pub = node.create_publisher(AckermannDriveStamped, '/gamepad_drive', 1)
+
+    while rclpy.ok():
+        rclpy.spin_once(node)
+
+
+    # destroy the node explicitly (optional)
+    node.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
