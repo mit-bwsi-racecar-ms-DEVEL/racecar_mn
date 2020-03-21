@@ -31,11 +31,11 @@ def generate_launch_description():
             node_executable='throttle',
             node_name='throttle_node'
 	),
-#	Node(
-#	    package='racecar_mn',
-#            node_executable='pwm',
-#            node_name='pwm_node',
-#	),
+	Node(
+	    package='racecar_mn',
+            node_executable='pwm',
+            node_name='pwm_node',
+	),
 #        Node(
 #            package='racecar_mn',
 #            node_executable='simple_camera.py',

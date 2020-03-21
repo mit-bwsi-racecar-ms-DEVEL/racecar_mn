@@ -19,6 +19,7 @@ setup(
             'gamepad = racecar_mn.gamepad:main',
             'mux = racecar_mn.mux:main',
             'throttle = racecar_mn.throttle:main',
+            'pwm = racecar_mn.pwm:main',
         ]
     },
     
