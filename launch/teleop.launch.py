@@ -21,6 +21,11 @@ def generate_launch_description():
             node_name='gamepad_node',
             parameters=[param_file_path],
 	),
+	Node(
+	    package='racecar_mn',
+            node_executable='mux',
+            node_name='mux_node'
+	),
 #	Node(
 #	    package='racecar_mn',
 #            node_executable='mux.py',

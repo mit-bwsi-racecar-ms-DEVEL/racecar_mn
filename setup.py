@@ -17,6 +17,7 @@ setup(
     entry_points={
         'console_scripts': [
             'gamepad = racecar_mn.gamepad:main',
+            'mux = racecar_mn.mux:main',
         ]
     },
     
