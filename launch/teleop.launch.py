@@ -26,20 +26,15 @@ def generate_launch_description():
             node_executable='mux',
             node_name='mux_node'
 	),
+	Node(
+	    package='racecar_mn',
+            node_executable='throttle',
+            node_name='throttle_node'
+	),
 #	Node(
 #	    package='racecar_mn',
-#            node_executable='mux.py',
-#            node_name='mux'
-#	),
-#	Node(
-#	    package='racecar_mn',
-#            node_executable='pwm.py',
-#            node_name='pwm.py',
-#	),
-#	Node(
-#	    package='racecar_mn',
-#            node_executable='throttle.py',
-#            node_name='throttle'
+#            node_executable='pwm',
+#            node_name='pwm_node',
 #	),
 #        Node(
 #            package='racecar_mn',
