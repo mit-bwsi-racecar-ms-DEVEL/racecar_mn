@@ -14,15 +14,13 @@ CAR_THROTTLE_FORWARD = float(0.25) # Parameter('car_throttle_forward',type_=Para
 CAR_THROTTLE_BACKWARD = float(0.25) # Parameter('car_throttle_backward',type_=Parameter.Type.DOUBLE,value=0.25)
 CAR_THROTTLE_TURN = 1.0 # float(Parameter('car_throttle_turn',type_=Parameter.Type.DOUBLE,value=0.25).get_parameter_value())
 GAMEPAD_THROTTLE_SPEED_SCALE = 1.0 # float(Parameter('gamepad_throttle_speed_scale',type_=Parameter.Type.DOUBLE,value=1.0).get_parameter_value())
-GAMEPAD_X_AXIS = int(1) # int(Parameter('gamepad_x_axis',type_=Parameter.Type.INTEGER,value=1).get_parameter_value())
-GAMEPAD_Y_AXIS = int(3) # Parameter('gamepad_y_axis',type_=Parameter.Type.INTEGER,value=3).get_parameter_value())
+GAMEPAD_THROTTLE_AXIS = int(1) # int(Parameter('gamepad_x_axis',type_=Parameter.Type.INTEGER,value=1).get_parameter_value())
+GAMEPAD_STEER_AXIS = int(2) # Parameter('gamepad_y_axis',type_=Parameter.Type.INTEGER,value=3).get_parameter_value())
 
 # declare globals
 _node = None
 _pub = None
 _sub = None
-_x_scale = 0
-_y_scale = 0
 
 # scale x-stick input [-1, 1] to throttled drive speed output
 def scale_x(x_in):
@@ -39,8 +37,8 @@ def scale_y(y_in):
 def joy_callback(msg):
     global _pub
     drive_msg = AckermannDriveStamped()
-    drive_msg.drive.speed = scale_x(msg.axes[GAMEPAD_X_AXIS])
-    drive_msg.drive.steering_angle = scale_y(msg.axes[GAMEPAD_Y_AXIS])
+    drive_msg.drive.speed = scale_x(msg.axes[GAMEPAD_THROTTLE_AXIS])
+    drive_msg.drive.steering_angle = scale_y(msg.axes[GAMEPAD_STEER_AXIS])
     _pub.publish(drive_msg)
 
 

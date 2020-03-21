@@ -5,7 +5,7 @@ gamepad_node:
         car_throttle_turn: 0.25      # radians
         gamepad_throttle_speed_scale: 1   # (0, 1]
         gamepad_x_axis: 1                 # up/down left stick
-        gamepad_y_axis: 3 # 2             # left/right right stick  gamepad1:
+        gamepad_y_axis: 2                 # left/right right stick
 
 mux_node:
     ros__parameters: 
