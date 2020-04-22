@@ -14,21 +14,7 @@ from rclpy.qos import QoSDurabilityPolicy, QoSHistoryPolicy, QoSReliabilityPolic
 from ackermann_msgs.msg import AckermannDriveStamped
 
 
-# default config
 from . import maestro
-controller = maestro.Controller()
-
-# setup motor config
-controller.setRange(0,3000,9000)
-controller.setSpeed(0,0)
-controller.setAccel(0,0)
-controller.setTarget(0,6000)
-
-# setup steering config
-controller.setRange(1,3000,9000)
-controller.setSpeed(1,0)
-controller.setAccel(1,0)     
-controller.setTarget(1,6000)
 
 CAR_MAX_FORWARD = 0.25 # Parameter('car_max_forward',type_=Parameter.Type.DOUBLE,value=0.25)
 CAR_MAX_BACKWARD = 0.25 # Parameter('car_max_backward',type_=Parameter.Type.DOUBLE,value=0.25)
@@ -42,55 +28,70 @@ def map_val(value, inMin, inMax, outMin, outMax):
     valScaled = float(value - inMin) / float(inSpan)
     return outMin + (valScaled * outSpan)
 
-# msg.drive.speed:
-# [-1.5, 1.5] -> | -1.5 full reverse | 1.5 full forward |
-# msg.drive.steering_angle:
-# [-0.4, 0.4] -> | -0.4 full left    | 0.4 full right   |
-def motor_callback(msg):
-    
-    # print("motor_callback:")
-    # print(f"    >> speed:  {msg.drive.speed}")
-    # print(f"    >> steer:  {msg.drive.steering_angle}")
 
-    if msg.drive.speed >= 0:
-        lin_vel = map_val(msg.drive.speed, 0, CAR_MAX_FORWARD, 6000, 9000) 
-    else:
-        lin_vel = map_val(msg.drive.speed, -CAR_MAX_BACKWARD, 0, 3000, 6000)
-
-    turn_angle = map_val(msg.drive.steering_angle, -CAR_MAX_TURN, CAR_MAX_TURN, 8000, 4000) 
-
-    # print(f"    << speed:  {lin_vel}")
-    # print(f"    << steer:  {turn_angle}")
-
-    # set drive speed
-    controller.setTarget(0, int(lin_vel))
-
-    # added Y_OFFSET to center servo
-    controller.setTarget(1, int(turn_angle + STEERING_CENTER_REL_OFFSET))
-
-    
 def main(args=None):
-    global _node
+
+    # default config
+    controller = maestro.Controller()
+
+    # setup motor config
+    controller.setRange(0,3000,9000)
+    controller.setSpeed(0,0)
+    controller.setAccel(0,0)
+    controller.setTarget(0,6000)
+
+    # setup steering config
+    controller.setRange(1,3000,9000)
+    controller.setSpeed(1,0)
+    controller.setAccel(1,0)
+    controller.setTarget(1,6000)
+
+    # msg.drive.speed:
+    # [-1.5, 1.5] -> | -1.5 full reverse | 1.5 full forward |
+    # msg.drive.steering_angle:
+    # [-0.4, 0.4] -> | -0.4 full left    | 0.4 full right   |
+    def motor_callback(msg):
+
+        # print("motor_callback:")
+        # print(f"    >> speed:  {msg.drive.speed}")
+        # print(f"    >> steer:  {msg.drive.steering_angle}")
+
+        if msg.drive.speed >= 0:
+            lin_vel = map_val(msg.drive.speed, 0, CAR_MAX_FORWARD, 6000, 9000)
+        else:
+            lin_vel = map_val(msg.drive.speed, -CAR_MAX_BACKWARD, 0, 3000, 6000)
+
+        turn_angle = map_val(msg.drive.steering_angle, -CAR_MAX_TURN, CAR_MAX_TURN, 8000, 4000)
+
+        # print(f"    << speed:  {lin_vel}")
+        # print(f"    << steer:  {turn_angle}")
+
+        # set drive speed
+        controller.setTarget(0, int(lin_vel))
+
+        # added Y_OFFSET to center servo
+        controller.setTarget(1, int(turn_angle + STEERING_CENTER_REL_OFFSET))
 
     # init ros
     rclpy.init(args=args)
-    
-    _node = rclpy.create_node('pwm')
+    node = rclpy.create_node('pwm')
 
-    qos_profile = QoSProfile(depth=1)
-    qos_profile.history = QoSHistoryPolicy.RMW_QOS_POLICY_HISTORY_KEEP_LAST
-    qos_profile.reliability = QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT
-    qos_profile.durability = QoSDurabilityPolicy.RMW_QOS_POLICY_DURABILITY_VOLATILE
-    
-    _node.create_subscription(AckermannDriveStamped, '/motor', motor_callback, qos_profile)
+    try:
+        qos_profile = QoSProfile(depth=1)
+        qos_profile.history = QoSHistoryPolicy.RMW_QOS_POLICY_HISTORY_KEEP_LAST
+        qos_profile.reliability = QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT
+        qos_profile.durability = QoSDurabilityPolicy.RMW_QOS_POLICY_DURABILITY_VOLATILE
 
+        node.create_subscription(AckermannDriveStamped, '/motor', motor_callback, qos_profile)
 
-    # wait and shutdown
-    rclpy.spin(_node)
-    
-    controller.close()
-    _node.destroy_node()
-    rclpy.shutdown()
+        # wait and shutdown
+        rclpy.spin(node)
+
+    except KeyboardInterrupt:
+        pass
+    finally:
+        controller.close()
+        rclpy.shutdown()
 
 
 if __name__ == '__main__':

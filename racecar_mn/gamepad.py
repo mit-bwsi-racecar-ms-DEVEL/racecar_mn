@@ -17,11 +17,6 @@ GAMEPAD_THROTTLE_SPEED_SCALE = 1.0 # float(Parameter('gamepad_throttle_speed_sca
 GAMEPAD_THROTTLE_AXIS = int(1) # int(Parameter('gamepad_x_axis',type_=Parameter.Type.INTEGER,value=1).get_parameter_value())
 GAMEPAD_STEER_AXIS = int(2) # Parameter('gamepad_y_axis',type_=Parameter.Type.INTEGER,value=3).get_parameter_value())
 
-# declare globals
-_node = None
-_pub = None
-_sub = None
-
 # scale x-stick input [-1, 1] to throttled drive speed output
 def scale_x(x_in):
     if x_in >= 0:
@@ -33,31 +28,31 @@ def scale_x(x_in):
 def scale_y(y_in):
     return y_in * CAR_THROTTLE_TURN
 
-# gamepad callback
-def joy_callback(msg):
-    global _pub
-    drive_msg = AckermannDriveStamped()
-    drive_msg.drive.speed = scale_x(msg.axes[GAMEPAD_THROTTLE_AXIS])
-    drive_msg.drive.steering_angle = scale_y(msg.axes[GAMEPAD_STEER_AXIS])
-    _pub.publish(drive_msg)
-
 
 def main(args=None):
-    global _node, _pub, _sub 
 
     rclpy.init(args=args)
-    
     node = rclpy.create_node('gamepad_node')
-    _sub = node.create_subscription(Joy, '/joy', joy_callback, 1)
-    _pub = node.create_publisher(AckermannDriveStamped, '/gamepad_drive', 1)
 
-    while rclpy.ok():
-        rclpy.spin_once(node)
+    try:
+        pub = node.create_publisher(AckermannDriveStamped, '/gamepad_drive', 1)
 
+        # gamepad callback
+        def joy_callback(msg):
+            drive_msg = AckermannDriveStamped()
+            drive_msg.drive.speed = scale_x(msg.axes[GAMEPAD_THROTTLE_AXIS])
+            drive_msg.drive.steering_angle = scale_y(msg.axes[GAMEPAD_STEER_AXIS])
+            pub.publish(drive_msg)
 
-    # destroy the node explicitly (optional)
-    node.destroy_node()
-    rclpy.shutdown()
+        node.create_subscription(Joy, '/joy', joy_callback, 1)
+
+        while rclpy.ok():
+            rclpy.spin_once(node)
+
+    except KeyboardInterrupt:
+        pass
+    finally:
+        rclpy.shutdown()
 
 
 if __name__ == '__main__':

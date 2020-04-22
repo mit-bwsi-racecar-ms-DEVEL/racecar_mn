@@ -25,76 +25,68 @@ class MuxMode(Enum):
 
     def __init__(self, value, enable_button):
         self.enable = None
-        self._value_ = value 
+        self._value_ = value
         self.enable = enable_button
 
 # # If we want to configure these from parameters, do so here...
 # MuxMode.GAMEPAD.enable=4
 # MuxMode.AUTONOMY.enable=5
 
-# list all file-global variables
-_mode = MuxMode.IDLE
-_node = None
-_pub = None
-
-# gamepad callback
-def joy_callback(msg):
-    global _mode, _pub
-
-    # if LB is pressed, enable teleop
-    if msg.buttons[MuxMode.GAMEPAD.enable] == 1:
-        _mode = MuxMode.GAMEPAD
-    # if RB is pressed, enable autonomy
-    elif msg.buttons[MuxMode.AUTONOMY.enable] == 1:
-        _mode = MuxMode.AUTONOMY
-
-    # otherwise default, publish stop
-    else:
-        _mode = MuxMode.IDLE
-        _pub.publish(AckermannDriveStamped())
-
-
-# callback for gamepad_drive topic
-def gamepad_drive_callback(msg):
-    global _mode, _pub
-
-    if _mode == MuxMode.GAMEPAD:
-        _pub.publish(msg)
-
-# callback for drive topic
-def autonomy_drive_callback(msg):
-    global _mode, _pub
-
-    if _mode == MuxMode.AUTONOMY:
-        _pub.publish(msg)
-
 
 def main(args=None):
-    global _node, _pub
-        
+
     # init ROS
     rclpy.init(args=args)
+    node = rclpy.create_node('mux_node')
 
-    _node = rclpy.create_node('mux_node')
+    try:
+        # see example: https://github.com/ros2/demos/blob/master/topic_monitor/topic_monitor/scripts/data_publisher.py
+        qos_profile = QoSProfile(depth=1)
+        qos_profile.history = QoSHistoryPolicy.RMW_QOS_POLICY_HISTORY_KEEP_LAST
+        qos_profile.reliability = QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT
+        qos_profile.durability = QoSDurabilityPolicy.RMW_QOS_POLICY_DURABILITY_VOLATILE
 
-    # see example: https://github.com/ros2/demos/blob/master/topic_monitor/topic_monitor/scripts/data_publisher.py
-    qos_profile = QoSProfile(depth=1)
-    qos_profile.history = QoSHistoryPolicy.RMW_QOS_POLICY_HISTORY_KEEP_LAST
-    qos_profile.reliability = QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT
-    qos_profile.durability = QoSDurabilityPolicy.RMW_QOS_POLICY_DURABILITY_VOLATILE
+        pub = node.create_publisher(AckermannDriveStamped, '/mux_out', qos_profile)
 
-    _pub = _node.create_publisher(AckermannDriveStamped, '/mux_out', qos_profile)
+        mode = MuxMode.IDLE
 
-    _node.create_subscription(AckermannDriveStamped, '/gamepad_drive', gamepad_drive_callback, qos_profile)
-    _node.create_subscription(AckermannDriveStamped, '/drive', autonomy_drive_callback, qos_profile)
-    _node.create_subscription(Joy, '/joy', joy_callback, qos_profile)
-    
+        # gamepad callback
+        def joy_callback(msg):
+            nonlocal mode
+            # if LB is pressed, enable teleop
+            if msg.buttons[MuxMode.GAMEPAD.enable] == 1:
+                mode = MuxMode.GAMEPAD
+            # if RB is pressed, enable autonomy
+            elif msg.buttons[MuxMode.AUTONOMY.enable] == 1:
+                mode = MuxMode.AUTONOMY
 
-    # wait before shutdown
-    rclpy.spin(_node)
+            # otherwise default, publish stop
+            else:
+                mode = MuxMode.IDLE
+                pub.publish(AckermannDriveStamped())
 
-    _node.destroy_node()
-    rclpy.shutdown()
+
+        # callback for gamepad_drive topic
+        def gamepad_drive_callback(msg):
+            if mode == MuxMode.GAMEPAD:
+                pub.publish(msg)
+
+        # callback for drive topic
+        def autonomy_drive_callback(msg):
+            if mode == MuxMode.AUTONOMY:
+                pub.publish(msg)
+
+        node.create_subscription(AckermannDriveStamped, '/gamepad_drive', gamepad_drive_callback, qos_profile)
+        node.create_subscription(AckermannDriveStamped, '/drive', autonomy_drive_callback, qos_profile)
+        node.create_subscription(Joy, '/joy', joy_callback, qos_profile)
+
+        # wait before shutdown
+        rclpy.spin(node)
+
+    except KeyboardInterrupt:
+        pass
+    finally:
+        rclpy.shutdown()
 
 
 
