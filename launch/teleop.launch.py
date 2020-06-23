@@ -1,12 +1,19 @@
 #!/usr/bin/python3
+from ament_index_python.packages import get_package_share_directory
 
 import launch
 import launch.actions
 import launch.substitutions
 from launch_ros.actions import Node
-
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 def generate_launch_description():
+    share_dir = get_package_share_directory('ydlidar')
+    ydlidar_launch = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                share_dir, '/launch/ydlidar_launch.py']))
+    
     param_file_path = '/home/racecar/racecar_ws/base_ws/src/racecar_mn/config/params.yaml'
     
     return launch.LaunchDescription([
@@ -15,32 +22,38 @@ def generate_launch_description():
             node_executable='joy_node',
             node_name='joy_node',
 	),
-        Node(
-	    package='racecar_mn',
-            node_executable='gamepad',
-            node_name='gamepad_node',
-            parameters=[param_file_path],
-	),
-	Node(
-	    package='racecar_mn',
-            node_executable='mux',
-            node_name='mux_node'
-	),
-	Node(
-	    package='racecar_mn',
-            node_executable='throttle',
-            node_name='throttle_node'
-	),
+#        Node(
+#	    package='racecar_mn',
+#            node_executable='gamepad',
+#            node_name='gamepad_node',
+#            parameters=[param_file_path],
+#	),
+#	Node(
+#	    package='racecar_mn',
+#            node_executable='mux',
+#            node_name='mux_node'
+#	),
+#	Node(
+#	    package='racecar_mn',
+#            node_executable='throttle',
+#            node_name='throttle_node'
+#	),
 	Node(
 	    package='racecar_mn',
             node_executable='pwm',
             node_name='pwm_node',
 	),
+        Node(
+            package='racecar_mn',
+            node_executable='camera',
+            node_name='camera_node',
+        ),
 #        Node(
 #            package='racecar_mn',
 #            node_executable='simple_camera.py',
 #            node_name='simple_camera'
-#	)    
+#	)
+        ydlidar_launch
     ])
 
 
