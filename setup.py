@@ -16,10 +16,11 @@ setup(
     install_requires=['setuptools'],
     entry_points={
         'console_scripts': [
-            'gamepad = racecar_mn.gamepad:main',
-            'mux = racecar_mn.mux:main',
-            'throttle = racecar_mn.throttle:main',
+#            'gamepad = racecar_mn.gamepad:main',
+#            'mux = racecar_mn.mux:main',
+#            'throttle = racecar_mn.throttle:main',
             'pwm = racecar_mn.pwm:main',
+            'camera = racecar_mn.camera:main',
         ]
     },
     
