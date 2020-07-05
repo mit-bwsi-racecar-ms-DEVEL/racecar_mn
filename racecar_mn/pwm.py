@@ -3,6 +3,8 @@
 # Abstraction layer for controlling the motors
 
 import rclpy
+import os
+import serial
 from rclpy.parameter import Parameter
 from rclpy.qos import QoSDurabilityPolicy, QoSHistoryPolicy, QoSReliabilityPolicy, QoSProfile
 from . import maestro
@@ -21,24 +23,32 @@ PWM_TURN_RIGHT_CAP = 3000
 PWM_TURN_CHANNEL = 1
 
 def main(args=None):
+    # initialize ros
     rclpy.init()
     node = rclpy.create_node('pwm')
-    
+#    stream = os.popen("lsof | grep \"/dev/ttyACM0\" ")
+#    output = stream.read()
+#    print("Output for port /dev/ttyACM0 {}".format(output))
+    while(True):
+        try:
+            # initialize servo controller
+            controller = maestro.Controller()
+            break
+        except (OSError, serial.serialutil.SerialException):
+            stream = os.popen("lsof | grep \"/dev/ttyACM0\" ")
+            output = stream.read()
+            print(output)
     try:  
         qos_profile = QoSProfile(depth=1)
         qos_profile.history = QoSHistoryPolicy.RMW_QOS_POLICY_HISTORY_KEEP_LAST
         qos_profile.reliability = QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT
         qos_profile.durability = QoSDurabilityPolicy.RMW_QOS_POLICY_DURABILITY_VOLATILE
         pub = node.create_publisher(String, "/pwm_debug", qos_profile = 1)
-    
-        # initialize servo controller
-        controller = maestro.Controller()
-    
+
         def drive_callback(msg):
             """
             Callback function passed to the ROS subscriber /drive to compute signals to send to the PWM
             """
-        
             # Set drive speed
             controller.setTarget(PWM_SPEED_CHANNEL, int(msg.drive.speed))
 
