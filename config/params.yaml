@@ -1,16 +1,1 @@
-gamepad_node:
-    ros__parameters:
-        car_throttle_forward: 0.25   # m/s
-        car_throttle_backward: 0.25  # m/s
-        car_throttle_turn: 0.25      # radians
-        gamepad_throttle_speed_scale: 1   # (0, 1]
-        gamepad_x_axis: 1                 # up/down left stick
-        gamepad_y_axis: 2                 # left/right right stick
 
-mux_node:
-    ros__parameters: 
-        car_max_forward: 1.5         # m/s
-        car_max_backward: 1.0        # m/s
-        car_max_turn: 0.4            # radians
-
-        steering_center_rel_offset: 0     # (-3000, 3000) + => left | - => right 
