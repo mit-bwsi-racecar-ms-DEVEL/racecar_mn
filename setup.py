@@ -20,7 +20,7 @@ setup(
 #            'mux = racecar_mn.mux:main',
 #            'throttle = racecar_mn.throttle:main',
             'pwm = racecar_mn.pwm:main',
-            'camera = racecar_mn.camera:main',
+            'camera = racecar_mn.camera:main'
         ]
     },
     
