@@ -5,7 +5,6 @@
 # standard library imports
 import sys
 sys.path.insert(0, "/home/racecar/librealsense/wrappers/python")
-
 import time
 import numpy as np
 
@@ -14,6 +13,8 @@ import rclpy
 from rclpy.qos import QoSDurabilityPolicy, QoSHistoryPolicy, QoSReliabilityPolicy, QoSProfile
 from sensor_msgs.msg import Imu
 from sensor_msgs.msg import Image
+# from geometry_msgs.msg import Quaternion
+# from geometry_msgs.msg import Vector3
 
 # cv stuff
 from cv_bridge import CvBridge
@@ -52,19 +53,27 @@ def main(args=None):
             rs.format.z16, 
             FRAME_RATE
     )
-    config.enable_stream(
-            rs.stream.accel, 
-            rs.format.motion_xyz32f, 
-            250
-    )
-    config.enable_stream(
-            rs.stream.gyro,
-            rs.format.motion_xyz32f,
-            200
-    )
+#    config.enable_stream(rs.stream.accel)
+#    config.enable_stream(rs.stream.gyro)
+#    config.enable_stream(
+#            rs.stream.accel, 
+#            rs.format.motion_xyz32f, 
+#            250
+#    )
+#    config.enable_stream(
+#            rs.stream.gyro,
+#            rs.format.motion_xyz32f,
+#            200
+#    )
 
     # start pipeline
     profile = pipeline.start(config)
+
+    # Get depth scale
+    # depth_sensor = profile.get_device().first_depth_sensor()
+    # depth_scale = depth_sensor.get_depth_scale()
+    # align_to = rs.stream.color
+    # align = rs.align(align_to)
 
     # init ros
     rclpy.init(args=args)
@@ -100,8 +109,10 @@ def main(args=None):
         _publisher = {
             'Depth': pub_camera_depth,
             'Color': pub_camera_color
-        } 
-
+        }
+        # _imu_frames = {'Accel': False, 'Gyro': True}
+        # _imu_field = {'Gyro': 'angular_velocity' , 'Accel': 'linear_acceleration'} 
+        
         # publish image frames to topics
         def publish_image(frame):
             stream_name = frame.get_profile().stream_name()
@@ -133,13 +144,22 @@ def main(args=None):
                     frame_type = frame.get_profile().stream_type()
                     if frame_type == rs.stream.color or frame_type == rs.stream.depth:
                         publish_image(frame)
+                    # elif frame_type == rs.stream.accel or rs.stream.gyro:
+                    #     stream_name = frame.get_profile().stream_name()
+                    #     imu_data = frame.as_motion_frame().get_motion_data()
+                    #     msg_imu.{_imu_field[stream_name]}.x = imu_data.x 
+                    #     msg_imu.{_imu_field[stream_name]}.y = imu_data.y 
+                    #     msg_imu.{_imu_field[stream_name]}.z = imu_data.z 
+                    #     continue
                     elif frame_type == rs.stream.accel:
+                        # _imu_frames['Accel'] = True
                         accel_data = frame.as_motion_frame().get_motion_data()
                         msg_imu.linear_acceleration.x = accel_data.x 
                         msg_imu.linear_acceleration.y = accel_data.y 
                         msg_imu.linear_acceleration.z = accel_data.z
                         pub_accel.publish(msg_imu)
                     elif frame_type == rs.stream.gyro:
+                        # _imu_frames['Gyro'] = True
                         gyro_data = frame.as_motion_frame().get_motion_data()
                         msg_imu.angular_velocity.x = gyro_data.x
                         msg_imu.angular_velocity.y = gyro_data.y
@@ -147,7 +167,30 @@ def main(args=None):
                         pub_gyro.publish(msg_imu)
                     else:
                         print("Found alternative frame type: ", frame_type)
-               
+                
+                # if _imu_frames['Accel'] and _imu_frames['Gyro']:
+                #     pub_imu.publish(msg_imu)
+                # _imu_frames['Accel'] = False
+                # _imu_frames['Gyro'] = False
+                
+                
+                # Align the depth frame to color frame (frames must be the depth and color)
+                # aligned_frames = align.process(frames)
+
+                # Get aligned frames
+                # aligned_depth_frame = aligned_frames.get_depth_frame() # aligned_depth_frame is a 640x480 depth image
+                # color_frame = aligned_frames.get_color_frame()
+
+
+                # if not aligned_depth_frame or not color_frame:
+                #     continue
+                # depth_image = np.asanyarray(aligned_depth_frame.get_data())
+                # color_image = np.asanyarray(color_frame.get_data())
+
+                
+                # cv.namedWindow('Image window', cv.WINDOW_AUTOSIZE)
+                # cv.imshow("Image window", color_image)
+                # cv.waitKey(1)
             except RuntimeError as e:
                 print(e)
 
